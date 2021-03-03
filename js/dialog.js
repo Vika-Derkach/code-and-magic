@@ -1,7 +1,6 @@
 (function () {
   var setupDialogElement = document.querySelector(".setup");
   var dialogHandler = setupDialogElement.querySelector(".upload");
-  console.log(dialogHandler);
 
   dialogHandler.addEventListener("mousedown", function (evt) {
     evt.preventDefault();
@@ -42,9 +41,7 @@
           dialogHandler.removeEventListener("click", onClickPreventDefault);
         };
         dialogHandler.addEventListener("click", onClickPreventDefault);
-        console.log(onClickPreventDefault);
       }
-      console.log(onClickPreventDefault);
     };
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);

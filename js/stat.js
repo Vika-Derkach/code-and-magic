@@ -19,24 +19,13 @@
     ctx.fillText(" Список результатов:", 250, 40);
 
     console.log(names, times);
-    // ctx.shadowColor = "red";
-    // ctx.shadowOffsetX = 10;
-    // ctx.shadowOffsetY = 10;
 
-    // ctx.textBaseline = "hanging";
     ctx.font = "16px PT Mono";
     ctx.fillStyle = "#000";
 
-    // ctx.fillText(names[1], 250, 240);
-    // ctx.fillText(names[2], 330, 240);
-    // ctx.fillText(names[3], 410, 240);
-
-    console.log(names[1]);
-
     var highTime = 9000;
     var highBar = 150;
-    // var barHeight = (times[1] * highBar) / highTime;
-    // console.log(barHeight);
+
     const startMargin = 170;
     const marginBetweenBlock = 80;
     let colorGraph = [
