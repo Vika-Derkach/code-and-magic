@@ -295,9 +295,45 @@ form.addEventListener("submit", function (evt) {
     wizard.onEyesChange(newColor);
   });
 
+  document
+    .querySelector(".setup-wizard-form")
+    .addEventListener("submit", function (evt) {
+      evt.preventDefault();
+
+      var wizardCopy = document.querySelector("svg").cloneNode(true);
+
+      wizardCopy.querySelector("#wizard-coat").style.fill =
+        wizardCoatElement.style.fill;
+      wizardCopy.querySelector("#wizard-eyes").style.fill =
+        wizardEyesElement.style.fill;
+
+      var wizardBase64Right = window.svg2base64(wizardCopy);
+
+      wizardCopy
+        .querySelector("#wizard")
+        .setAttribute("transform", "translate(62, 0) scale(-1, 1)");
+      var wizardBase64Left = window.svg2base64(wizardCopy);
+
+      window.restartGame(wizardBase64Right, wizardBase64Left);
+    });
+
   window.wizard = wizard;
 })();
 
+(function () {
+  var DATA_URL_PREFIX = "data:image/svg+xml;charset=utf-8;base64,";
+
+  window.svg2base64 = function (svgElement) {
+    // превращает елемент в текст
+    var xml = new XMLSerializer().serializeToString(svgElement);
+
+    //закодуємо текст у форму
+    var svg64 = window.btoa(xml);
+
+    //добавим заголовок
+    return DATA_URL_PREFIX + svg64;
+  };
+})();
 // Файл debounce.js
 
 (function () {
