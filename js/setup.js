@@ -46,6 +46,16 @@ var wizardList = [
     fireballColor: ["#ee4830", "#30a8ee", "#5ce6c0", "#e848d5", "#e6e848"],
   },
 ];
+//відправляємо форму , і закриваємо вікно setup
+var form = userDialog.querySelector(".setup-wizard-form");
+form.addEventListener("submit", function (evt) {
+  window.upload(new FormData(form), function (response) {
+    userDialog.classList.add("hidden");
+  });
+  evt.preventDefault();
+});
+
+//як було з початку
 
 //заповнюємо даними з масива
 // var renderWizard = function (wizard) {
@@ -79,15 +89,6 @@ var wizardList = [
 // }
 // similarListElement.appendChild(fragment);
 // userDialog.querySelector(".setup-similar").classList.remove("hidden");
-
-//відправляємо форму , і закриваємо вікно setup
-var form = userDialog.querySelector(".setup-wizard-form");
-form.addEventListener("submit", function (evt) {
-  window.upload(new FormData(form), function (response) {
-    userDialog.classList.add("hidden");
-  });
-  evt.preventDefault();
-});
 
 // var getRandomElement = function (array) {
 //   var randomElementIndex = Math.floor(Math.random() * array.length);
@@ -235,185 +236,3 @@ form.addEventListener("submit", function (evt) {
 // var URL = "https://javascript.pages.academy/code-and-magick/data";
 // window.load(URL, successHandler, errorHandler);
 // // })();
-
-//wizard js
-(function () {
-  // Получение случайного элемента из массива
-  var getRandomElement = function (array) {
-    var randomElementIndex = Math.floor(Math.random() * array.length);
-    return array[randomElementIndex];
-  };
-
-  var wizard = {
-    onEyesChange: function (color) {
-      return color;
-    },
-    onCoatChange: function (color) {
-      return color;
-    },
-  };
-
-  // Редактирование цвета плаща персонажа.
-  // При нажатии на персонажа, заливка элемента,
-  // соответствующего плащу персонажа меняется
-  // с помощью CSS-свойства SVG-элементов fill.
-  // Цвет будет выбираться из заранее определенного
-  // набора цветов
-  var wizardElement = document.querySelector(".setup-wizard");
-  var wizardCoatElement = wizardElement.querySelector(".wizard-coat");
-  var wizardCoatColors = [
-    "rgb(146, 100, 161)",
-    "rgb(215, 210, 55)",
-    "rgb(241, 43, 107)",
-    "rgb(101, 137, 164)",
-    "rgb(0, 0, 0)",
-    "rgb(215, 210, 55)",
-    "rgb(56, 159, 117)",
-    "rgb(241, 43, 107)",
-  ];
-
-  wizardCoatElement.addEventListener("click", function () {
-    var newColor = getRandomElement(wizardCoatColors);
-    wizardCoatElement.style.fill = newColor;
-    wizard.onCoatChange(newColor);
-  });
-
-  var wizardEyesElement = wizardElement.querySelector(".wizard-eyes");
-  var wizardEyesColors = [
-    "red",
-    "orange",
-    "yellow",
-    "green",
-    "lightblue",
-    "blue",
-    "purple",
-  ];
-
-  wizardEyesElement.addEventListener("click", function () {
-    var newColor = getRandomElement(wizardEyesColors);
-    wizardEyesElement.style.fill = newColor;
-    wizard.onEyesChange(newColor);
-  });
-
-  document
-    .querySelector(".setup-wizard-form")
-    .addEventListener("submit", function (evt) {
-      evt.preventDefault();
-
-      var wizardCopy = document.querySelector("svg").cloneNode(true);
-
-      wizardCopy.querySelector("#wizard-coat").style.fill =
-        wizardCoatElement.style.fill;
-      wizardCopy.querySelector("#wizard-eyes").style.fill =
-        wizardEyesElement.style.fill;
-
-      var wizardBase64Right = window.svg2base64(wizardCopy);
-
-      wizardCopy
-        .querySelector("#wizard")
-        .setAttribute("transform", "translate(62, 0) scale(-1, 1)");
-      var wizardBase64Left = window.svg2base64(wizardCopy);
-
-      window.restartGame(wizardBase64Right, wizardBase64Left);
-    });
-
-  window.wizard = wizard;
-})();
-
-(function () {
-  var DATA_URL_PREFIX = "data:image/svg+xml;charset=utf-8;base64,";
-
-  window.svg2base64 = function (svgElement) {
-    // превращает елемент в текст
-    var xml = new XMLSerializer().serializeToString(svgElement);
-
-    //закодуємо текст у форму
-    var svg64 = window.btoa(xml);
-
-    //добавим заголовок
-    return DATA_URL_PREFIX + svg64;
-  };
-})();
-// Файл debounce.js
-
-(function () {
-  var DEBOUNCE_INTERVAL = 300; // ms
-
-  window.debounce = function (fun) {
-    var lastTimeout = null;
-
-    return function () {
-      var args = arguments;
-      if (lastTimeout) {
-        window.clearTimeout(lastTimeout);
-      }
-      lastTimeout = window.setTimeout(function () {
-        fun.apply(null, args);
-      }, DEBOUNCE_INTERVAL);
-    };
-  };
-})();
-
-// Файл similar.js
-
-(function () {
-  var coatColor;
-  var eyesColor;
-  var wizards = [];
-
-  var getRank = function (wizard) {
-    var rank = 0;
-
-    if (wizard.colorCoat === coatColor) {
-      rank += 2;
-    }
-    if (wizard.colorEyes === eyesColor) {
-      rank += 1;
-    }
-
-    return rank;
-  };
-
-  var updateWizards = function () {
-    window.render(
-      wizards.slice().sort(function (left, right) {
-        var rankDiff = getRank(right) - getRank(left);
-        if (rankDiff === 0) {
-          rankDiff = wizards.indexOf(left) - wizards.indexOf(right);
-        }
-        return rankDiff;
-      })
-    );
-  };
-
-  window.wizard.onEyesChange = window.debounce(function (color) {
-    eyesColor = color;
-    updateWizards();
-  });
-
-  window.wizard.onCoatChange = window.debounce(function (color) {
-    coatColor = color;
-    updateWizards();
-  });
-
-  var successHandler = function (data) {
-    wizards = data;
-    updateWizards();
-  };
-
-  var errorHandler = function (errorMessage) {
-    var node = document.createElement("div");
-    node.style =
-      "z-index: 100; margin: 0 auto; text-align: center; background-color: red;";
-    node.style.position = "absolute";
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = "30px";
-
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement("afterbegin", node);
-  };
-
-  var URL = "https://js.dump.academy/code-and-magick/data";
-  window.load(URL, successHandler, errorHandler);
-})();
